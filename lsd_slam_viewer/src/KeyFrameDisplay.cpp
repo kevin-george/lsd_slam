@@ -2,7 +2,7 @@
 * This file is part of LSD-SLAM.
 *
 * Copyright 2013 Jakob Engel <engelj at in dot tum dot de> (Technical University of Munich)
-* For more information see <http://vision.in.tum.de/lsdslam> 
+* For more information see <http://vision.in.tum.de/lsdslam>
 *
 * LSD-SLAM is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -66,6 +66,7 @@ void KeyFrameDisplay::setFrom(lsd_slam_viewer::keyframeMsgConstPtr msg)
 {
 	// copy over campose.
 	memcpy(camToWorld.data(), msg->camToWorld.data(), 7*sizeof(float));
+
 
 	fx = msg->fx;
 	fy = msg->fy;
@@ -328,8 +329,11 @@ int KeyFrameDisplay::flushPC(std::ofstream* f)
 	for(int i=0;i<num;i++)
 	{
 		f->write((const char *)tmpBuffer[i].point,3*sizeof(float));
-		float color = tmpBuffer[i].color[0] / 255.0;
-		f->write((const char *)&color,sizeof(float));
+		//float color = tmpBuffer[i].color[0] / 255.0;
+		//f->write((const char *)&color,sizeof(float));
+		unsigned char color[4] = {tmpBuffer[i].color[2], tmpBuffer[i].color[1], tmpBuffer[i].color[0], 0};
+		f->write((const char *)color,4*sizeof(unsigned char));
+
 	}
 	//	*f << tmpBuffer[i].point[0] << " " << tmpBuffer[i].point[1] << " " << tmpBuffer[i].point[2] << " " << (tmpBuffer[i].color[0] / 255.0) << "\n";
 
@@ -338,6 +342,7 @@ int KeyFrameDisplay::flushPC(std::ofstream* f)
 	printf("Done flushing frame %d (%d points)!\n", this->id, num);
 	return num;
 }
+
 
 void KeyFrameDisplay::drawPC(float pointSize, float alpha)
 {
@@ -398,4 +403,3 @@ void KeyFrameDisplay::drawPC(float pointSize, float alpha)
 		glLightfv (GL_LIGHT0, GL_AMBIENT_AND_DIFFUSE, LightColor);
 	}
 }
-

@@ -27,11 +27,11 @@ float pointTesselation = 1;
 float lineTesselation = 2;
 
 bool keepInMemory=true;
-bool showKFCameras = true;
-bool showKFPointclouds = true;
-bool showConstraints = true;
-bool showCurrentCamera = true;
-bool showCurrentPointcloud = true;
+bool showKFCameras = false;
+bool showKFPointclouds = false;
+bool showConstraints = false;
+bool showCurrentCamera = false;
+bool showCurrentPointcloud = false;
 
 float scaledDepthVarTH = 1;
 float absDepthVarTH = 1;

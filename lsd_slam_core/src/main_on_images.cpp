@@ -2,7 +2,7 @@
 * This file is part of LSD-SLAM.
 *
 * Copyright 2013 Jakob Engel <engelj at in dot tum dot de> (Technical University of Munich)
-* For more information see <http://vision.in.tum.de/lsdslam> 
+* For more information see <http://vision.in.tum.de/lsdslam>
 *
 * LSD-SLAM is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -214,6 +214,8 @@ int main( int argc, char** argv )
 
 
 	cv::Mat image = cv::Mat(h,w,CV_8U);
+  cv::Mat imageRGB = cv::Mat(h,w,CV_8UC3);
+
 	int runningIDX=0;
 	float fakeTimeStamp = 0;
 
@@ -222,7 +224,7 @@ int main( int argc, char** argv )
 	for(unsigned int i=0;i<files.size();i++)
 	{
 		cv::Mat imageDist = cv::imread(files[i], CV_LOAD_IMAGE_GRAYSCALE);
-
+    cv::Mat imageDistRGB = cv::imread(files[i], CV_LOAD_IMAGE_COLOR);
 		if(imageDist.rows != h_inp || imageDist.cols != w_inp)
 		{
 			if(imageDist.rows * imageDist.cols == 0)
@@ -239,9 +241,9 @@ int main( int argc, char** argv )
 		assert(image.type() == CV_8U);
 
 		if(runningIDX == 0)
-			system->randomInit(image.data, fakeTimeStamp, runningIDX);
+			system->randomInit(image.data, imageRGB.data, fakeTimeStamp, runningIDX);
 		else
-			system->trackFrame(image.data, runningIDX ,hz == 0,fakeTimeStamp);
+			system->trackFrame(image.data, imageRGB.data, runningIDX ,hz == 0,fakeTimeStamp);
 		runningIDX++;
 		fakeTimeStamp+=0.03;
 

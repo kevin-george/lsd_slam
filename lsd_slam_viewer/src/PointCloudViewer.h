@@ -2,7 +2,7 @@
 * This file is part of LSD-SLAM.
 *
 * Copyright 2013 Jakob Engel <engelj at in dot tum dot de> (Technical University of Munich)
-* For more information see <http://vision.in.tum.de/lsdslam> 
+* For more information see <http://vision.in.tum.de/lsdslam>
 *
 * LSD-SLAM is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -27,8 +27,10 @@
 #include <vector>
 #include "boost/thread.hpp"
 #include "qevent.h"
+// Messages
 #include "lsd_slam_viewer/keyframeMsg.h"
 #include "lsd_slam_viewer/keyframeGraphMsg.h"
+#include "geometry_msgs/PoseStamped.h"
 
 #include "QGLViewer/keyFrameInterpolator.h"
 
@@ -37,6 +39,8 @@ class QApplication;
 class KeyFrameGraphDisplay;
 class CameraDisplay;
 class KeyFrameDisplay;
+
+class ROSPCOutputWrapper;
 
 #include "settings.h"
 
@@ -153,12 +157,15 @@ class PointCloudViewer : public QGLViewer
 public:
 	PointCloudViewer();
 	~PointCloudViewer();
-
+  // For publishing image messages.
+  void setOutputWrapper(ROSPCOutputWrapper* outputWrapper);
 
 	void reset();
 
 	void addFrameMsg(lsd_slam_viewer::keyframeMsgConstPtr msg);
 	void addGraphMsg(lsd_slam_viewer::keyframeGraphMsgConstPtr msg);
+
+
 
 
 protected :
@@ -223,6 +230,8 @@ private:
 
 
 	void remakeAnimation();
+
+  bool followCurrentFrameAnimation = false;
+
+
 };
-
-

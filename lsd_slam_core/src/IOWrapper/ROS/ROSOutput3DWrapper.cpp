@@ -2,7 +2,7 @@
 * This file is part of LSD-SLAM.
 *
 * Copyright 2013 Jakob Engel <engelj at in dot tum dot de> (Technical University of Munich)
-* For more information see <http://vision.in.tum.de/lsdslam> 
+* For more information see <http://vision.in.tum.de/lsdslam>
 *
 * LSD-SLAM is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -58,6 +58,9 @@ ROSOutput3DWrapper::ROSOutput3DWrapper(int width, int height)
 	pose_channel = nh_.resolveName("lsd_slam/pose");
 	pose_publisher = nh_.advertise<geometry_msgs::PoseStamped>(pose_channel,1);
 
+	key_pose_channel = nh_.resolveName("lsd_slam/keypose");
+	key_pose_publisher = nh_.advertise<geometry_msgs::PoseStamped>(key_pose_channel,1);
+
 
 	publishLvl=0;
 }
@@ -96,8 +99,9 @@ void ROSOutput3DWrapper::publishKeyframe(Frame* f)
 
 	const float* idepth = f->idepth(publishLvl);
 	const float* idepthVar = f->idepthVar(publishLvl);
-	const float* color = f->image(publishLvl);
-
+	//const float* color = f->image(publishLvl);
+	const float* color = f->imageRGB(publishLvl);
+  /*
 	for(int idx=0;idx < w*h; idx++)
 	{
 		pc[idx].idepth = idepth[idx];
@@ -107,8 +111,46 @@ void ROSOutput3DWrapper::publishKeyframe(Frame* f)
 		pc[idx].color[2] = color[idx];
 		pc[idx].color[3] = color[idx];
 	}
+	*/
+
+	for(int idx=0,idxRGB=0;idx < w*h; idx++,idxRGB+=3)
+	{
+		pc[idx].idepth = idepth[idx];
+		pc[idx].idepth_var = idepthVar[idx];
+		pc[idx].color[0] = color[idxRGB];
+		pc[idx].color[1] = color[idxRGB+1];
+		pc[idx].color[2] = color[idxRGB+2];
+		pc[idx].color[3] = 100;
+	}
+
 
 	keyframe_publisher.publish(fMsg);
+
+	// Also publish the Pose
+	SE3 camToWorld = se3FromSim3(f->getScaledCamToWorld());
+
+
+	geometry_msgs::PoseStamped pMsg;
+
+	pMsg.pose.position.x = camToWorld.translation()[0];
+	pMsg.pose.position.y = camToWorld.translation()[1];
+	pMsg.pose.position.z = camToWorld.translation()[2];
+	pMsg.pose.orientation.x = camToWorld.so3().unit_quaternion().x();
+	pMsg.pose.orientation.y = camToWorld.so3().unit_quaternion().y();
+	pMsg.pose.orientation.z = camToWorld.so3().unit_quaternion().z();
+	pMsg.pose.orientation.w = camToWorld.so3().unit_quaternion().w();
+
+	if (pMsg.pose.orientation.w < 0)
+	{
+		pMsg.pose.orientation.x *= -1;
+		pMsg.pose.orientation.y *= -1;
+		pMsg.pose.orientation.z *= -1;
+		pMsg.pose.orientation.w *= -1;
+	}
+
+	pMsg.header.stamp = ros::Time(f->timestamp());
+        pMsg.header.frame_id = std::to_string(f->id());
+	key_pose_publisher.publish(pMsg);
 }
 
 void ROSOutput3DWrapper::publishTrackedFrame(Frame* kf)
@@ -156,6 +198,7 @@ void ROSOutput3DWrapper::publishTrackedFrame(Frame* kf)
 
 	pMsg.header.stamp = ros::Time(kf->timestamp());
 	pMsg.header.frame_id = "world";
+        //pMsg.header.frame_id = std::to_string(kf->id());
 	pose_publisher.publish(pMsg);
 }
 
