@@ -131,7 +131,7 @@ void PointCloudViewer::reset()
 	lastAutoplayCheckedSaveTime = -1;
 
 	animationPlaybackEnabled = false;
-    printf("PointCloudViewer.cpp. Setting custom window size\n");
+  printf("PointCloudViewer.cpp. Setting custom window size\n");
  	this->setFixedSize(800,450);
 
 }
@@ -247,7 +247,7 @@ void PointCloudViewer::draw()
 		}
 	}
 
-  if (followCurrentFrameAnimation){
+  if (liveCameraTracking){
       // Get a reference to a qglviewer.
       qglviewer::Frame frame;
       frame = qglviewer::Frame();
@@ -369,11 +369,11 @@ void PointCloudViewer::keyPressEvent(QKeyEvent *e)
 
     	  break;
      case Qt::Key_M:
-	  if(followCurrentFrameAnimation)
-    		  printf("DISABLE follow current frame animation!\n)");
-    	  else
-    		  printf("ENABLE follow current frame animation!\n");
-          followCurrentFrameAnimation = !followCurrentFrameAnimation;
+				if(liveCameraTracking)
+				  printf("DISABLE live camera tracking animation!\n)");
+				else
+				  printf("ENABLE live camera tracking animation!\n");
+        liveCameraTracking = !liveCameraTracking;
 
 	  break;
 

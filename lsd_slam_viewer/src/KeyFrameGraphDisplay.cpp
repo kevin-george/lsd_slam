@@ -101,13 +101,15 @@ void KeyFrameGraphDisplay::draw()
 		if((showKFPointclouds && (int)i > cutFirstNKf) || i == keyframes.size()-1)
 			keyframes[i]->drawPC(pointTesselation, 1);
 	}
-  if (publish_counter % publish_frequency == 0){
-
-      publishPointCloudImage(&pixels);
-      if (publish_counter > 300)
-         publish_counter = 0;
-  }
-  publish_counter ++;
+	// Output the pointcloud publisher.
+	if (outputPointCloudPublisher){
+	  if (publish_counter % publish_frequency == 0){
+	      publishPointCloudImage(&pixels);
+	      if (publish_counter > 300)
+	         publish_counter = 0;
+	  }
+	  publish_counter ++;
+	}
 
 	if(flushPointcloud)
 	{

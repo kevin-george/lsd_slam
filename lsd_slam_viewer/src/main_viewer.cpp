@@ -70,6 +70,8 @@ void dynConfCb(lsd_slam_viewer::LSDSLAMViewerParamsConfig &config, uint32_t leve
 	cutFirstNKf = config.cutFirstNKf;
 
 	saveAllVideo = config.saveAllVideo;
+	liveCameraTracking = config.liveCameraTracking;
+	outputPointCloudPublisher = config.outputPointCloudPublisher;
 
 }
 
@@ -136,7 +138,7 @@ void rosThreadLoop( int argc, char** argv )
 	ros::Subscriber graph_sub       = nh.subscribe(nh.resolveName("lsd_slam/graph"),10, graphCb);
     //ros::Subscriber pose_sub = nh.subscribe(nh.resolveName("lsd_slam/pose"),1, poseCb);
 
-
+	ROS_INFO("Done setting up subscribers.");
 	ros::spin();
 
 	ros::shutdown();
