@@ -57,13 +57,19 @@ void KeyFrameGraphDisplay::publishPointCloudImage(GLubyte **pixels) {
 
     *pixels = (GLubyte*)realloc(*pixels, format_nchannels * sizeof(GLubyte) * width * height);
     glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, *pixels);
+		//GLenum error;
+
+		if (glGetError() != GL_NO_ERROR){
+			printf("Error while publishing. Skipping.\n");
+			return;
+		}
 
     cv::Mat temp_matrix(height,width, CV_8UC3, cv::Scalar(0,0,0));
     for (i = 0; i < height; i++) {
         for (j = 0; j < width; j++) {
             cur = format_nchannels * ((height - i - 1) * width + j);
-				    temp_matrix.at<cv::Vec3b>(i,j)[0] = (*pixels)[cur+2];
-				    temp_matrix.at<cv::Vec3b>(i,j)[1] = (*pixels)[cur+2];
+				    temp_matrix.at<cv::Vec3b>(i,j)[0] = (*pixels)[cur];
+				    temp_matrix.at<cv::Vec3b>(i,j)[1] = (*pixels)[cur+1];
 				    temp_matrix.at<cv::Vec3b>(i,j)[2] = (*pixels)[cur+2];
 
         }
@@ -71,8 +77,8 @@ void KeyFrameGraphDisplay::publishPointCloudImage(GLubyte **pixels) {
     }
 
 
-    //if (outputWrapper != nullptr)
-		//	 outputWrapper->publishPointCloudImage(&temp_matrix);
+    if (outputWrapper != nullptr)
+			 outputWrapper->publishPointCloudImage(&temp_matrix);
 }
 
 void KeyFrameGraphDisplay::setOutputWrapper(ROSPCOutputWrapper* outputWrapper){
