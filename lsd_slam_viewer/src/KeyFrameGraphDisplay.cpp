@@ -55,8 +55,8 @@ void KeyFrameGraphDisplay::publishPointCloudImage(GLubyte **pixels) {
     size_t i, j, k, cur;
     const size_t format_nchannels = 3;
 
-    *pixels = (GLubyte*)realloc(*pixels, format_nchannels * sizeof(GLubyte) * width * height);
-    glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, *pixels);
+    *pixels = (GLubyte*)realloc(*pixels, format_nchannels * sizeof(GLubyte) * frameWidth * frameHeight);
+    glReadPixels(0, 0, frameWidth, frameHeight, GL_RGB, GL_UNSIGNED_BYTE, *pixels);
 		//GLenum error;
 
 		if (glGetError() != GL_NO_ERROR){
@@ -64,25 +64,23 @@ void KeyFrameGraphDisplay::publishPointCloudImage(GLubyte **pixels) {
 			return;
 		}
 
-    cv::Mat temp_matrix(height,width, CV_8UC3, cv::Scalar(0,0,0));
-    for (i = 0; i < height; i++) {
-        for (j = 0; j < width; j++) {
-            cur = format_nchannels * ((height - i - 1) * width + j);
+    cv::Mat temp_matrix(frameHeight,frameWidth, CV_8UC3, cv::Scalar(0,0,0));
+    for (i = 0; i < frameHeight; i++) {
+        for (j = 0; j < frameWidth; j++) {
+            cur = format_nchannels * ((frameHeight - i - 1) * frameWidth + j);
 				    temp_matrix.at<cv::Vec3b>(i,j)[0] = (*pixels)[cur];
 				    temp_matrix.at<cv::Vec3b>(i,j)[1] = (*pixels)[cur+1];
 				    temp_matrix.at<cv::Vec3b>(i,j)[2] = (*pixels)[cur+2];
-
         }
-
     }
-
-
     if (outputWrapper != nullptr)
 			 outputWrapper->publishPointCloudImage(&temp_matrix);
 }
 
 void KeyFrameGraphDisplay::setOutputWrapper(ROSPCOutputWrapper* outputWrapper){
      this->outputWrapper = outputWrapper;
+		 this->frameWidth = this->outputWrapper->width;
+		 this->frameHeight = this->outputWrapper->height;
 }
 
 

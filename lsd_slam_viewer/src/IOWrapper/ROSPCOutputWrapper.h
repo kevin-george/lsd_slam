@@ -42,10 +42,10 @@ class ROSPCOutputWrapper
 		virtual void publishPointCloudImage(cv::Mat* img_matrix);
 	//	virtual void publishDebugInfo(Eigen::Matrix<float, 20, 1> data);
 
-
+	 int width, height;
 
 	private:
-		int width, height;
+
 
     std::string pc_image_channel_name;
 		image_transport::Publisher pc_image_publisher;

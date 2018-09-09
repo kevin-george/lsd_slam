@@ -94,8 +94,8 @@ private:
 	// Pointcloud output variables.
   int publish_frequency = 5;
   int publish_counter = 0;
-  unsigned int width = 800;
-	unsigned int height = 450;
+  unsigned int frameWidth = 800;
+	unsigned int frameHeight = 450;
 
 };
 
