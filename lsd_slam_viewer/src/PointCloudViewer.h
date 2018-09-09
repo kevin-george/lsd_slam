@@ -165,6 +165,9 @@ public:
 	void addFrameMsg(lsd_slam_viewer::keyframeMsgConstPtr msg);
 	void addGraphMsg(lsd_slam_viewer::keyframeGraphMsgConstPtr msg);
 
+	int frameWidth = 800;
+	int frameHeight = 450;
+
 
 
 

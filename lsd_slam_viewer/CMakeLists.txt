@@ -59,7 +59,6 @@ set(SOURCE_FILES
   src/KeyFrameGraphDisplay.cpp
   src/settings.cpp
   src/IOWrapper/ROSPCOutputWrapper.cpp
-  src/util/SophusUtil.cpp
 )
 
 set(HEADER_FILES
@@ -68,7 +67,6 @@ set(HEADER_FILES
   src/KeyFrameGraphDisplay.h
   src/settings.h
   src/IOWrapper/ROSPCOutputWrapper.h
-  src/util/SophusUtil.cpp
 )
 
 include_directories(

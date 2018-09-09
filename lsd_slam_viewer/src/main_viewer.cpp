@@ -121,7 +121,7 @@ void rosThreadLoop( int argc, char** argv )
 	// Setup the publisher
 	ROS_INFO("Initialized Pointcloud Publisher");
 	// Set the output wrapper.
-	outputWrapper = new ROSPCOutputWrapper(800, 450);
+	outputWrapper = new ROSPCOutputWrapper(viewer->frameWidth, viewer->frameHeight);
 	setOutputWrapper(outputWrapper);
 
 

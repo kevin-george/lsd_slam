@@ -99,19 +99,7 @@ void ROSOutput3DWrapper::publishKeyframe(Frame* f)
 
 	const float* idepth = f->idepth(publishLvl);
 	const float* idepthVar = f->idepthVar(publishLvl);
-	//const float* color = f->image(publishLvl);
 	const float* color = f->imageRGB(publishLvl);
-  /*
-	for(int idx=0;idx < w*h; idx++)
-	{
-		pc[idx].idepth = idepth[idx];
-		pc[idx].idepth_var = idepthVar[idx];
-		pc[idx].color[0] = color[idx];
-		pc[idx].color[1] = color[idx];
-		pc[idx].color[2] = color[idx];
-		pc[idx].color[3] = color[idx];
-	}
-	*/
 
 	for(int idx=0,idxRGB=0;idx < w*h; idx++,idxRGB+=3)
 	{
@@ -198,7 +186,6 @@ void ROSOutput3DWrapper::publishTrackedFrame(Frame* kf)
 
 	pMsg.header.stamp = ros::Time(kf->timestamp());
 	pMsg.header.frame_id = "world";
-        //pMsg.header.frame_id = std::to_string(kf->id());
 	pose_publisher.publish(pMsg);
 }
 

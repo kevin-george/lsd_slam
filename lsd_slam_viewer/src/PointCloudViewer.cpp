@@ -112,6 +112,9 @@ void PointCloudViewer::reset()
 
 	resetRequested=false;
 
+	liveCameraTracking=false;
+	outputPointCloudPublisher=false;
+
 	save_folder = ros::package::getPath("lsd_slam_viewer")+"/save/";
 	localMsBetweenSaves = 1;
 	simMsBetweenSaves = 1;
@@ -131,8 +134,8 @@ void PointCloudViewer::reset()
 	lastAutoplayCheckedSaveTime = -1;
 
 	animationPlaybackEnabled = false;
-  printf("PointCloudViewer.cpp. Setting custom window size\n");
- 	this->setFixedSize(800,450);
+
+	setToVideoSize();
 
 }
 
@@ -188,7 +191,6 @@ void PointCloudViewer::draw()
 		reset();
 		resetRequested = false;
 	}
-
 
 	glPushMatrix();
 
@@ -307,8 +309,7 @@ void PointCloudViewer::keyReleaseEvent(QKeyEvent *e)
 
 void PointCloudViewer::setToVideoSize()
 {
-	//this->setFixedSize(1600,900);
-        this->setFixedSize(800,450);
+   this->setFixedSize(frameWidth,frameHeight);
 }
 
 
