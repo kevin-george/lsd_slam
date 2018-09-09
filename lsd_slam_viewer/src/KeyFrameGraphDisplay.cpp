@@ -2,7 +2,7 @@
 * This file is part of LSD-SLAM.
 *
 * Copyright 2013 Jakob Engel <engelj at in dot tum dot de> (Technical University of Munich)
-* For more information see <http://vision.in.tum.de/lsdslam> 
+* For more information see <http://vision.in.tum.de/lsdslam>
 *
 * LSD-SLAM is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -25,18 +25,62 @@
 #include <sstream>
 #include <fstream>
 
+// For debugging timing.
+#include <chrono>
+
 #include "ros/package.h"
+
+#include "IOWrapper/ROSPCOutputWrapper.h"
+
+#include <opencv2/opencv.hpp>
+
+using namespace std::chrono;
 
 KeyFrameGraphDisplay::KeyFrameGraphDisplay()
 {
 	flushPointcloud = false;
 	printNumbers = false;
+        // Initialize the outputWrapper
 }
 
 KeyFrameGraphDisplay::~KeyFrameGraphDisplay()
 {
 	for(unsigned int i=0;i<keyframes.size();i++)
 		delete keyframes[i];
+}
+
+
+
+void KeyFrameGraphDisplay::publishPointCloudImage(GLubyte **pixels) {
+    size_t i, j, k, cur;
+    const size_t format_nchannels = 3;
+
+    *pixels = (GLubyte*)realloc(*pixels, format_nchannels * sizeof(GLubyte) * frameWidth * frameHeight);
+    glReadPixels(0, 0, frameWidth, frameHeight, GL_RGB, GL_UNSIGNED_BYTE, *pixels);
+		//GLenum error;
+
+		if (glGetError() != GL_NO_ERROR){
+			printf("Error while publishing. Skipping.\n");
+			return;
+		}
+
+    cv::Mat temp_matrix(frameHeight,frameWidth, CV_8UC3, cv::Scalar(0,0,0));
+    for (i = 0; i < frameHeight; i++) {
+        for (j = 0; j < frameWidth; j++) {
+            cur = format_nchannels * ((frameHeight - i - 1) * frameWidth + j);
+				    temp_matrix.at<cv::Vec3b>(i,j)[0] = (*pixels)[cur];
+				    temp_matrix.at<cv::Vec3b>(i,j)[1] = (*pixels)[cur+1];
+				    temp_matrix.at<cv::Vec3b>(i,j)[2] = (*pixels)[cur+2];
+        }
+    }
+    if (outputWrapper != nullptr)
+			 outputWrapper->publishPointCloudImage(&temp_matrix);
+}
+
+void KeyFrameGraphDisplay::setOutputWrapper(ROSPCOutputWrapper* outputWrapper){
+     this->outputWrapper = outputWrapper;
+		 this->frameWidth = this->outputWrapper->width;
+		 this->frameHeight = this->outputWrapper->height;
 }
 
 
@@ -55,7 +99,15 @@ void KeyFrameGraphDisplay::draw()
 		if((showKFPointclouds && (int)i > cutFirstNKf) || i == keyframes.size()-1)
 			keyframes[i]->drawPC(pointTesselation, 1);
 	}
-
+	// Output the pointcloud publisher.
+	if (outputPointCloudPublisher){
+	  if (publish_counter % publish_frequency == 0){
+	      publishPointCloudImage(&pixels);
+	      if (publish_counter > 300)
+	         publish_counter = 0;
+	  }
+	  publish_counter ++;
+	}
 
 	if(flushPointcloud)
 	{
@@ -71,15 +123,18 @@ void KeyFrameGraphDisplay::draw()
 		f.flush();
 		f.close();
 
-		std::ofstream f2((ros::package::getPath("lsd_slam_viewer")+"/pc.ply").c_str());
-		f2 << std::string("ply\n");
-		f2 << std::string("format binary_little_endian 1.0\n");
-		f2 << std::string("element vertex ") << numpts << std::string("\n");
-		f2 << std::string("property float x\n");
-		f2 << std::string("property float y\n");
-		f2 << std::string("property float z\n");
-		f2 << std::string("property float intensity\n");
-		f2 << std::string("end_header\n");
+		std::ofstream f2((ros::package::getPath("lsd_slam_viewer")+"/pc.pcd").c_str());
+		f2 << std::string("# .PCD v0.7 - Point Cloud Data file format\n");
+		f2 << std::string("VERSION 0.7\n");
+		f2 << std::string("FIELDS x y z rgb\n");
+		f2 << std::string("SIZE 4 4 4 4\n");
+		f2 << std::string("TYPE F F F F\n");
+		f2 << std::string("COUNT 1 1 1 1\n");
+		f2 << std::string("WIDTH ") << numpts << std::string("\n");
+		f2 << std::string("HEIGHT 1\n");
+		f2 << std::string("VIEWPOINT 0 0 0 1 0 0 0\n");
+		f2 << std::string("POINTS ") << numpts << std::string("\n");
+		f2 << std::string("DATA binary\n");
 
 		std::ifstream f3((ros::package::getPath("lsd_slam_viewer")+"/pc_tmp.ply").c_str());
 		while(!f3.eof()) f2.put(f3.get());

@@ -2,7 +2,7 @@
 * This file is part of LSD-SLAM.
 *
 * Copyright 2013 Jakob Engel <engelj at in dot tum dot de> (Technical University of Munich)
-* For more information see <http://vision.in.tum.de/lsdslam> 
+* For more information see <http://vision.in.tum.de/lsdslam>
 *
 * LSD-SLAM is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -42,6 +42,13 @@
 PointCloudViewer* viewer = 0;
 
 
+#include "IOWrapper/ROSPCOutputWrapper.h"
+#include "geometry_msgs/PoseStamped.h"
+//ros::NodeHandle nh_;
+//ros::Publisher pc_image_publisher;
+//image_transport::Publisher pc_image_publisher;
+
+
 void dynConfCb(lsd_slam_viewer::LSDSLAMViewerParamsConfig &config, uint32_t level)
 {
 
@@ -63,6 +70,8 @@ void dynConfCb(lsd_slam_viewer::LSDSLAMViewerParamsConfig &config, uint32_t leve
 	cutFirstNKf = config.cutFirstNKf;
 
 	saveAllVideo = config.saveAllVideo;
+	liveCameraTracking = config.liveCameraTracking;
+	outputPointCloudPublisher = config.outputPointCloudPublisher;
 
 }
 
@@ -79,28 +88,57 @@ void graphCb(lsd_slam_viewer::keyframeGraphMsgConstPtr msg)
 	if(viewer != 0)
 		viewer->addGraphMsg(msg);
 }
+/*
+ The pose might be useful at a late time?
+ */
+void poseCb(const geometry_msgs::PoseStamped& msg){
+    //if (viewer != 0)
+    //    viewer->setCurrentPose(msg);
+}
+void setOutputWrapper(ROSPCOutputWrapper* outputWrapper){
+       if (viewer != 0){
+           if (outputWrapper != nullptr)
+                 viewer->setOutputWrapper(outputWrapper);
+           else
+                 printf("Error. Output wrapper is null");
+       }
+
+}
+
 
 
 
 void rosThreadLoop( int argc, char** argv )
 {
+	ROSPCOutputWrapper* outputWrapper = nullptr;
 	printf("Started ROS thread\n");
 
 	//glutInit(&argc, argv);
 
 	ros::init(argc, argv, "viewer");
+	ros::NodeHandle nh;
 	ROS_INFO("lsd_slam_viewer started");
+	// Setup the publisher
+	ROS_INFO("Initialized Pointcloud Publisher");
+	// Set the output wrapper.
+	outputWrapper = new ROSPCOutputWrapper(viewer->frameWidth, viewer->frameHeight);
+	setOutputWrapper(outputWrapper);
+
+
+
 
 	dynamic_reconfigure::Server<lsd_slam_viewer::LSDSLAMViewerParamsConfig> srv;
 	srv.setCallback(dynConfCb);
 
 
-	ros::NodeHandle nh;
+
 
 	ros::Subscriber liveFrames_sub = nh.subscribe(nh.resolveName("lsd_slam/liveframes"),1, frameCb);
 	ros::Subscriber keyFrames_sub = nh.subscribe(nh.resolveName("lsd_slam/keyframes"),20, frameCb);
 	ros::Subscriber graph_sub       = nh.subscribe(nh.resolveName("lsd_slam/graph"),10, graphCb);
+    //ros::Subscriber pose_sub = nh.subscribe(nh.resolveName("lsd_slam/pose"),1, poseCb);
 
+	ROS_INFO("Done setting up subscribers.");
 	ros::spin();
 
 	ros::shutdown();
@@ -159,6 +197,8 @@ int main( int argc, char** argv )
 
 	// Instantiate the viewer.
 	viewer = new PointCloudViewer();
+
+
 
 
 	#if QT_VERSION < 0x040000

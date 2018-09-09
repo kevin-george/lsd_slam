@@ -22,6 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   roslib
   cmake_modules
+  image_transport
 )
 
 find_package(OpenGL REQUIRED)
@@ -57,6 +58,7 @@ set(SOURCE_FILES
   src/KeyFrameDisplay.cpp
   src/KeyFrameGraphDisplay.cpp
   src/settings.cpp
+  src/IOWrapper/ROSPCOutputWrapper.cpp
 )
 
 set(HEADER_FILES
@@ -64,6 +66,7 @@ set(HEADER_FILES
   src/KeyFrameDisplay.h
   src/KeyFrameGraphDisplay.h
   src/settings.h
+  src/IOWrapper/ROSPCOutputWrapper.h
 )
 
 include_directories(

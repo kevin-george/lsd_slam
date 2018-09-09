@@ -2,7 +2,7 @@
 * This file is part of LSD-SLAM.
 *
 * Copyright 2013 Jakob Engel <engelj at in dot tum dot de> (Technical University of Munich)
-* For more information see <http://vision.in.tum.de/lsdslam> 
+* For more information see <http://vision.in.tum.de/lsdslam>
 *
 * LSD-SLAM is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -27,11 +27,11 @@ float pointTesselation = 1;
 float lineTesselation = 2;
 
 bool keepInMemory=true;
-bool showKFCameras = true;
-bool showKFPointclouds = true;
-bool showConstraints = true;
-bool showCurrentCamera = true;
-bool showCurrentPointcloud = true;
+bool showKFCameras = false;
+bool showKFPointclouds = false;
+bool showConstraints = false;
+bool showCurrentCamera = false;
+bool showCurrentPointcloud = false;
 
 float scaledDepthVarTH = 1;
 float absDepthVarTH = 1;
@@ -40,6 +40,9 @@ int cutFirstNKf = 5;
 int sparsifyFactor = 1;
 
 bool saveAllVideo = false;
+
+bool liveCameraTracking = false;
+bool outputPointCloudPublisher = false;
 
 int numRefreshedAlready = 0;
 

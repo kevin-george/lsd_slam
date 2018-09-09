@@ -99,6 +99,9 @@ private:
 	std::string pose_channel;
 	ros::Publisher pose_publisher;
 
+	std::string key_pose_channel;
+	ros::Publisher key_pose_publisher;
+
 	ros::NodeHandle nh_;
 };
 }

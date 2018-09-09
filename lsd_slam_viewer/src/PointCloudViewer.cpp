@@ -2,7 +2,7 @@
 * This file is part of LSD-SLAM.
 *
 * Copyright 2013 Jakob Engel <engelj at in dot tum dot de> (Technical University of Munich)
-* For more information see <http://vision.in.tum.de/lsdslam> 
+* For more information see <http://vision.in.tum.de/lsdslam>
 *
 * LSD-SLAM is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -42,6 +42,11 @@
 #include <iostream>
 #include <fstream>
 
+#include "IOWrapper/ROSPCOutputWrapper.h"
+
+
+
+
 PointCloudViewer::PointCloudViewer()
 {
 	setPathKey(Qt::Key_0,0);
@@ -54,6 +59,7 @@ PointCloudViewer::PointCloudViewer()
 	setPathKey(Qt::Key_7,7);
 	setPathKey(Qt::Key_8,8);
 	setPathKey(Qt::Key_9,9);
+
 
 
 	currentCamDisplay = 0;
@@ -80,6 +86,15 @@ PointCloudViewer::~PointCloudViewer()
 	delete currentCamDisplay;
 	delete graphDisplay;
 }
+void PointCloudViewer::setOutputWrapper(ROSPCOutputWrapper* outputWrapper){
+     if (graphDisplay != 0){
+         graphDisplay->setOutputWrapper(outputWrapper);
+         printf("PointCloudViewer::setOutputWrapper(). Successfuly set output wrapper.");
+     }
+     else{
+         printf("PointCloudViewer::setOutputWrapper(). Error. No KeyFrameGraph!");
+     }
+}
 
 
 void PointCloudViewer::reset()
@@ -96,6 +111,9 @@ void PointCloudViewer::reset()
 	KFLastPCSeq = -1;
 
 	resetRequested=false;
+
+	liveCameraTracking=false;
+	outputPointCloudPublisher=false;
 
 	save_folder = ros::package::getPath("lsd_slam_viewer")+"/save/";
 	localMsBetweenSaves = 1;
@@ -116,6 +134,9 @@ void PointCloudViewer::reset()
 	lastAutoplayCheckedSaveTime = -1;
 
 	animationPlaybackEnabled = false;
+
+	setToVideoSize();
+
 }
 
 void PointCloudViewer::addFrameMsg(lsd_slam_viewer::keyframeMsgConstPtr msg)
@@ -170,7 +191,6 @@ void PointCloudViewer::draw()
 		reset();
 		resetRequested = false;
 	}
-
 
 	glPushMatrix();
 
@@ -229,6 +249,20 @@ void PointCloudViewer::draw()
 		}
 	}
 
+  if (liveCameraTracking){
+      // Get a reference to a qglviewer.
+      qglviewer::Frame frame;
+      frame = qglviewer::Frame();
+      camera()->frame()->setOrientation(currentCamDisplay->camToWorld.quaternion().normalized().w(),
+                                        currentCamDisplay->camToWorld.quaternion().normalized().x(),
+                                        currentCamDisplay->camToWorld.quaternion().normalized().y(),
+                                        currentCamDisplay->camToWorld.quaternion().normalized().z());
+      camera()->frame()->setPosition(currentCamDisplay->camToWorld.translation()[0],
+                                     currentCamDisplay->camToWorld.translation()[1],
+                                     currentCamDisplay->camToWorld.translation()[2]);
+
+
+     }
 
 
 	if(showCurrentCamera)
@@ -275,7 +309,7 @@ void PointCloudViewer::keyReleaseEvent(QKeyEvent *e)
 
 void PointCloudViewer::setToVideoSize()
 {
-	this->setFixedSize(1600,900);
+   this->setFixedSize(frameWidth,frameHeight);
 }
 
 
@@ -335,6 +369,15 @@ void PointCloudViewer::keyPressEvent(QKeyEvent *e)
     	  remakeAnimation();
 
     	  break;
+     case Qt::Key_M:
+				if(liveCameraTracking)
+				  printf("DISABLE live camera tracking animation!\n)");
+				else
+				  printf("ENABLE live camera tracking animation!\n");
+        liveCameraTracking = !liveCameraTracking;
+
+	  break;
+
 
       case Qt::Key_I :	// reset animation list
 			meddleMutex.lock();
@@ -401,6 +444,7 @@ void PointCloudViewer::keyPressEvent(QKeyEvent *e)
     	  customAnimationEnabled = !customAnimationEnabled;
     	  break;
 
+
       case Qt::Key_O:
     	  if(animationPlaybackEnabled)
     	  {
@@ -427,4 +471,3 @@ void PointCloudViewer::keyPressEvent(QKeyEvent *e)
     	  break;
     }
   }
-
