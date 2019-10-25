@@ -1,3 +1,5 @@
+This package includes changes to make kevin-george's package run under Ubuntu 18.04 with ROS melodic, which in turn is a fork of tum-vision's original package.
+
 # LSD-SLAM: Large-Scale Direct Monocular SLAM
 
 LSD-SLAM is a novel approach to real-time monocular SLAM. It is fully direct (i.e. does not use keypoints / features) and creates large-scale, 
@@ -17,7 +19,7 @@ example-input datasets, and the generated output as rosbag or .ply point cloud.
 
 # 1. Quickstart / Minimal Setup
 
-First, install LSD-SLAM following 2.1 or 2.2, depending on your Ubuntu / ROS version. You don't need openFabMap for now.
+First, install LSD-SLAM following 2.1, 2.2 (if even working), or 2.3, depending on your Ubuntu / ROS version. You don't need openFabMap for now.
 
 Download the [Room Example Sequence](http://vmcremers8.informatik.tu-muenchen.de/lsd/LSD_room.bag.zip) and extract it.
 
@@ -89,11 +91,20 @@ Compile the two package by typing:
     rosmake lsd_slam
 
 
+## 2.3 ROS melodic + Ubuntu 18.04
+Install dependencies:
+	
+	sudo apt install libsuitesparse-dev libqglviewer-dev-qt4 ros-melodic-libg2o  ros-melodic-vision-opencv
+	sudo ln -s /usr/lib/x86_64-linux-gnu/libQGLViewer-qt4.so /usr/lib/x86_64-linux-gnu/libQGLViewer.so
+	sudo ln -s /usr/lib/x86_64-linux-gnu/libcxsparse.so.3.2.0 /usr/lib/x86_64-linux-gnu/libcsparse.so
+
+	mkdir -p ros_workspace/src
+	cd ros_workspace/src
+	git clone https://github.com/sven-hoek/lsd_slam.git
+	catkin build
 
 
-
-
-## 2.3 openFabMap for large loop-closure detection [optional]
+## 2.4 openFabMap for large loop-closure detection [optional]
 If you want to use openFABMAP for large loop closure detection, uncomment the following lines in `lsd_slam_core/CMakeLists.txt` :
 
     #add_subdirectory(${PROJECT_SOURCE_DIR}/thirdparty/openFabMap)
