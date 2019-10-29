@@ -1,0 +1,6 @@
+<launch>
+	<node name="republish" type="republish" pkg="image_transport" output="screen" args="compressed in:=/apollo/sensor/camera/perception/image_front_camera raw out:=/apollo/sensor/camera/perception/image_front_camera" />
+	<!--node name="lsdslamviewer" type="viewer" pkg="lsd_slam_viewer" output="screen"/-->
+	
+	<node name="live_lsd_slam" type="live_slam" pkg="lsd_slam_core" output="screen" args="image:=/apollo/sensor/camera/perception/image_front_camera/ _calib:=basler.cfg" />
+</launch>

@@ -67,7 +67,7 @@ void ROSImageStreamThread::setCalibration(std::string file)
 		ros::Subscriber info_sub         = nh_.subscribe(nh_.resolveName("camera_info"),1, &ROSImageStreamThread::infoCb, this);
 
 		printf("WAITING for ROS camera calibration!\n");
-		while(width_ == 0)
+		while(width_ == 0 && ros::ok())
 		{
 			ros::getGlobalCallbackQueue()->callAvailable(ros::WallDuration(0.03));
 		}
