@@ -11,7 +11,7 @@ set(CMAKE_BUILD_TYPE Release)
 
 find_package(catkin REQUIRED COMPONENTS
   cv_bridge
-  OpenCV
+  #OpenCV
   dynamic_reconfigure
   sensor_msgs
   image_transport
@@ -21,6 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
   lsd_slam_viewer
 )
 
+find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(X11 REQUIRED)
 include(cmake/FindG2O.cmake)
@@ -101,7 +102,7 @@ include_directories(
 
 # build shared library.
 add_library(lsdslam SHARED ${SOURCE_FILES})
-target_link_libraries(lsdslam ${FABMAP_LIB} ${G2O_LIBRARIES} ${catkin_LIBRARIES} csparse cxsparse X11)
+target_link_libraries(lsdslam ${FABMAP_LIB} ${G2O_LIBRARIES} ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} csparse cxsparse X11)
 #rosbuild_link_boost(lsdslam thread)
 
 
